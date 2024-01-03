@@ -5,19 +5,22 @@ import 'package:go_pts_client/go_pts_client.dart';
 import 'package:pawntown_cast/models/enums.dart';
 import 'package:pawntown_cast/models/livestream_state.dart';
 import 'package:pawntown_cast/models/pawntown_livestream_options.dart';
+import 'package:pawntown_cast/models/publisher_message.dart';
+import 'package:pawntown_cast/services/publisher.dart';
 
 class PawnTownLivestream {
   final GoPTSClient _ptsClient;
   final String _publicUrl;
   final PawnTownLivestreamOptions _options;
   final StreamController<LivestreamState> _controller = StreamController<LivestreamState>.broadcast();
+  final Publisher _publisher;
 
   Stream<LivestreamState> get stream => _controller.stream;
   StreamSubscription<dynamic>? _sub;
   LivestreamState _state = LivestreamState.initial();
   LivestreamState get state => _state;
 
-  PawnTownLivestream(this._ptsClient, this._publicUrl, this._options);
+  PawnTownLivestream(this._ptsClient, this._publicUrl, this._options): _publisher = Publisher(_ptsClient, "/stream/${_options.token}/admin");
 
   void _addState(LivestreamState newState) {
     _state = newState.copyWith();
@@ -80,7 +83,10 @@ class PawnTownLivestream {
   }
 
   void pauseScreen() {
-    _ptsClient.send("/stream/${_options.token}/admin", payload: { "type": StreamEvent.pause.index });
+    _publisher.publish(PublisherMessage(
+      identifier: "pauseScreen".hashCode,
+      payload: { "type": StreamEvent.pause.index },
+    ));
   }
 
   void updatePosition({
@@ -99,23 +105,26 @@ class PawnTownLivestream {
     StreamRunType runType = StreamRunType.running,
     HardwareClockState hardwareClockState = HardwareClockState.none,
   }) {
-    _ptsClient.send("/stream/${_options.token}/admin", payload: { 
-      "type": StreamEvent.position.index,
-      "fen": fen,
-      "moves": moves,
-      "whiteDisplayName": whiteDisplayName,
-      "blackDisplayName": blackDisplayName,
-      "whiteUsername": whiteUsername,
-      "blackUsername": blackUsername,
-      "whiteTimeLeft": whiteTimeLeft.inMilliseconds,
-      "blackTimeLeft": blackTimeLeft.inMilliseconds,
-      "timeRunning": timeRunning,
-      "turn": turn.index,
-      "orientation": orientation.index,
-      "winner": winner.index,
-      "runType": runType.index,
-      "hardwareClockState": hardwareClockState.index,
-      "createdAt": "${DateTime.now().toIso8601String()}Z",
-    });
+    _publisher.publish(PublisherMessage(
+      identifier: "updatePosition-$fen-${moves.join(",")}-$whiteDisplayName-$blackDisplayName-$whiteUsername-$blackUsername-${whiteTimeLeft.inMilliseconds}-${blackTimeLeft.inMilliseconds}-$timeRunning-${turn.index}-${orientation.index}-${winner.index}-${runType.index}-${hardwareClockState.index}".hashCode,
+      payload: {
+        "type": StreamEvent.position.index,
+        "fen": fen,
+        "moves": moves,
+        "whiteDisplayName": whiteDisplayName,
+        "blackDisplayName": blackDisplayName,
+        "whiteUsername": whiteUsername,
+        "blackUsername": blackUsername,
+        "whiteTimeLeft": whiteTimeLeft.inMilliseconds,
+        "blackTimeLeft": blackTimeLeft.inMilliseconds,
+        "timeRunning": timeRunning,
+        "turn": turn.index,
+        "orientation": orientation.index,
+        "winner": winner.index,
+        "runType": runType.index,
+        "hardwareClockState": hardwareClockState.index,
+        "createdAt": "${DateTime.now().toIso8601String()}Z",
+      },
+    ));
   }
 }
