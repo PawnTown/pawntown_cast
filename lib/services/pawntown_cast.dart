@@ -10,7 +10,7 @@ import 'package:pawntown_cast/models/pawntown_livestream_options.dart';
 import 'package:pawntown_cast/models/token_info.dart';
 import 'package:pawntown_cast/services/pawntown_livestream.dart';
 
-class PawnTownService {
+class PawnTownCast {
   final HttpClient _httpClient;
   final GoPTSClient _ptsClient;
   final PawnTownCastOptions _options;
@@ -20,7 +20,7 @@ class PawnTownService {
   PawnTownCastState _state = PawnTownCastState();
   PawnTownCastState get state => _state;
 
-  PawnTownService(this._options) : _httpClient = HttpClient(), _ptsClient = GoPTSClient(GoPTSClientConfig(uri: Uri.parse(_options.liveUrl))) {
+  PawnTownCast(this._options) : _httpClient = HttpClient(), _ptsClient = GoPTSClient(GoPTSClientConfig(uri: Uri.parse(_options.liveUrl))) {
     _ptsClient.connect();
   }
 

@@ -94,8 +94,8 @@ class PawnTownLivestream {
     String? blackDisplayName,
     String? whiteUsername,
     String? blackUsername,
-    required Duration whiteTimeLeft,
-    required Duration blackTimeLeft,
+    Duration? whiteTimeLeft,
+    Duration? blackTimeLeft,
     bool? timeRunning,
     String? fen,
     List<String> moves = const [],
@@ -106,7 +106,7 @@ class PawnTownLivestream {
     HardwareClockState hardwareClockState = HardwareClockState.none,
   }) {
     _publisher.publish(PublisherMessage(
-      identifier: "updatePosition-$fen-${moves.join(",")}-$whiteDisplayName-$blackDisplayName-$whiteUsername-$blackUsername-${whiteTimeLeft.inMilliseconds}-${blackTimeLeft.inMilliseconds}-$timeRunning-${turn.index}-${orientation.index}-${winner.index}-${runType.index}-${hardwareClockState.index}".hashCode,
+      identifier: "updatePosition-$fen-${moves.join(",")}-$whiteDisplayName-$blackDisplayName-$whiteUsername-$blackUsername-${whiteTimeLeft?.inMilliseconds ?? 0}-${blackTimeLeft?.inMilliseconds ?? 0}-$timeRunning-${turn.index}-${orientation.index}-${winner.index}-${runType.index}-${hardwareClockState.index}".hashCode,
       payload: {
         "type": StreamEvent.position.index,
         "fen": fen,
@@ -115,8 +115,8 @@ class PawnTownLivestream {
         "blackDisplayName": blackDisplayName,
         "whiteUsername": whiteUsername,
         "blackUsername": blackUsername,
-        "whiteTimeLeft": whiteTimeLeft.inMilliseconds,
-        "blackTimeLeft": blackTimeLeft.inMilliseconds,
+        "whiteTimeLeft": whiteTimeLeft?.inMilliseconds ?? 0,
+        "blackTimeLeft": blackTimeLeft?.inMilliseconds ?? 0,
         "timeRunning": timeRunning,
         "turn": turn.index,
         "orientation": orientation.index,
