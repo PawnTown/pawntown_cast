@@ -79,6 +79,7 @@ class PawnTownLivestream {
     final sub = _sub;
     if (sub != null) {
       await sub.cancel();
+      _addState(LivestreamState.initial());
     }
   }
 
